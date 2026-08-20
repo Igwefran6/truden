@@ -1,13 +1,13 @@
 import { showOverlay, isOverlayActive } from "./overlay.js";
 import { captureRegion } from "./capture.js";
 import { attachShakeTrigger } from "./shake.js";
+import { attachShortcutTrigger } from "./shortcut.js";
 import type { TrudenInitConfig, CaptureRegion } from "./types.js";
 
 let currentConfig: TrudenInitConfig = {};
 let activeTeardown: (() => void) | null = null;
 
 export function init(config?: TrudenInitConfig): () => void {
-  // Clean up any previous listeners if init was called before
   if (activeTeardown) {
     activeTeardown();
   }
@@ -20,6 +20,11 @@ export function init(config?: TrudenInitConfig): () => void {
     open();
   }, currentConfig.shake);
   cleanups.push(cleanupShake);
+
+  const cleanupShortcut = attachShortcutTrigger(() => {
+    open();
+  }, currentConfig.shortcut);
+  cleanups.push(cleanupShortcut);
 
   const teardown = () => {
     cleanups.forEach((cleanup) => cleanup());

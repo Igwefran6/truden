@@ -14,6 +14,7 @@ export interface ShakeConfig {
 
 export interface TrudenInitConfig {
   shake?: boolean | ShakeConfig;
+  shortcut?: boolean | string;
   onOpen?: () => void;
   onCancel?: () => void;
   onResult?: (result: Blob) => void;
