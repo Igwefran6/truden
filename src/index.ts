@@ -9,3 +9,4 @@ export const truden = {
 
 export default truden;
 export { init, open, handler };
+export type * from "./types.js";
