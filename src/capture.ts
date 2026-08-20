@@ -19,13 +19,22 @@ export async function captureRegion(region: CaptureRegion): Promise<Blob> {
     dpr,
     fast: true,
     embedFonts: true,
+    reconcile: true,
   });
 
   // Calculate coordinates in device pixels
-  const targetX = (region.isFullWindow ? scrollX : scrollX + region.x) * dpr;
-  const targetY = (region.isFullWindow ? scrollY : scrollY + region.y) * dpr;
-  const targetWidth = (region.isFullWindow ? window.innerWidth : region.width) * dpr;
-  const targetHeight = (region.isFullWindow ? window.innerHeight : region.height) * dpr;
+  const rawTargetX = (region.isFullWindow ? scrollX : scrollX + region.x) * dpr;
+  const rawTargetY = (region.isFullWindow ? scrollY : scrollY + region.y) * dpr;
+  const rawTargetWidth = (region.isFullWindow ? window.innerWidth : region.width) * dpr;
+  const rawTargetHeight = (region.isFullWindow ? window.innerHeight : region.height) * dpr;
+
+  // Clamp dimensions and boundaries safely to avoid canvas rendering out of bounds
+  const targetWidth = Math.max(1, Math.round(rawTargetWidth));
+  const targetHeight = Math.max(1, Math.round(rawTargetHeight));
+  const sourceX = Math.max(0, Math.min(rawTargetX, fullCanvas.width - 1));
+  const sourceY = Math.max(0, Math.min(rawTargetY, fullCanvas.height - 1));
+  const sourceW = Math.max(1, Math.min(targetWidth, fullCanvas.width - sourceX));
+  const sourceH = Math.max(1, Math.min(targetHeight, fullCanvas.height - sourceY));
 
   // Crop the selected bounding box to a high-fidelity destination canvas
   const croppedCanvas = document.createElement("canvas");
@@ -39,10 +48,10 @@ export async function captureRegion(region: CaptureRegion): Promise<Blob> {
 
   ctx.drawImage(
     fullCanvas,
-    targetX,
-    targetY,
-    targetWidth,
-    targetHeight,
+    sourceX,
+    sourceY,
+    sourceW,
+    sourceH,
     0,
     0,
     targetWidth,

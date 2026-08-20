@@ -7,9 +7,7 @@ export interface OverlayOptions {
   onCancel?: () => void;
 }
 
-/**
- * Creates and displays the full-viewport capture overlay.
- */
+// Creates and displays the full-viewport capture overlay
 export function showOverlay(options: OverlayOptions): void {
   if (typeof window === "undefined" || typeof document === "undefined") {
     return;
@@ -24,7 +22,6 @@ export function showOverlay(options: OverlayOptions): void {
   let startY = 0;
   let isDragging = false;
 
-  // Root overlay container
   const overlay = document.createElement("div");
   overlay.id = "truden-overlay";
   Object.assign(overlay.style, {
@@ -41,33 +38,33 @@ export function showOverlay(options: OverlayOptions): void {
     boxSizing: "border-box",
     overflow: "hidden",
     touchAction: "none",
+    boxShadow: "inset 0 0 0 1px rgba(255, 255, 255, 0.35)",
   });
 
-  // Hint pill at the top center
   const hint = document.createElement("div");
   hint.id = "truden-hint";
   hint.textContent = "Drag to select · Enter for full window · Esc to cancel";
   Object.assign(hint.style, {
     position: "absolute",
-    top: "24px",
+    top: "0",
     left: "50%",
     transform: "translateX(-50%)",
-    backgroundColor: "rgba(17, 24, 39, 0.92)",
+    backgroundColor: "rgba(17, 24, 39, 0.94)",
     backdropFilter: "blur(8px)",
     color: "#ffffff",
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     fontSize: "12px",
     fontWeight: "400",
     letterSpacing: "0.01em",
-    padding: "8px 18px",
-    borderRadius: "9999px",
-    boxShadow: "0 4px 14px rgba(0, 0, 0, 0.35)",
-    border: "1px solid rgba(255, 255, 255, 0.18)",
+    padding: "7px 22px 9px 22px",
+    borderRadius: "0 0 24px 24px",
+    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.4)",
+    border: "1px solid rgba(255, 255, 255, 0.35)",
+    borderTop: "none",
     pointerEvents: "none",
     whiteSpace: "nowrap",
   });
 
-  // Selection rectangle
   const selectionBox = document.createElement("div");
   selectionBox.id = "truden-selection-box";
   Object.assign(selectionBox.style, {
@@ -80,7 +77,6 @@ export function showOverlay(options: OverlayOptions): void {
     boxSizing: "border-box",
   });
 
-  // Dimension label badge
   const dimensionBadge = document.createElement("div");
   dimensionBadge.id = "truden-dimensions";
   Object.assign(dimensionBadge.style, {
@@ -109,6 +105,10 @@ export function showOverlay(options: OverlayOptions): void {
     window.removeEventListener("mousedown", handleMouseDown, true);
     window.removeEventListener("mousemove", handleMouseMove, true);
     window.removeEventListener("mouseup", handleMouseUp, true);
+    window.removeEventListener("touchstart", handleTouchStart, { capture: true });
+    window.removeEventListener("touchmove", handleTouchMove, { capture: true });
+    window.removeEventListener("touchend", handleTouchEnd, { capture: true });
+    window.removeEventListener("touchcancel", handleTouchEnd, { capture: true });
 
     if (activeOverlay && activeOverlay.parentNode) {
       activeOverlay.parentNode.removeChild(activeOverlay);
@@ -139,15 +139,9 @@ export function showOverlay(options: OverlayOptions): void {
     }
   }
 
-  function handleMouseDown(e: MouseEvent): void {
-    // Only respond to left clicks
-    if (e.button !== 0) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    startX = e.clientX;
-    startY = e.clientY;
+  function startSelection(clientX: number, clientY: number): void {
+    startX = clientX;
+    startY = clientY;
     isDragging = true;
 
     selectionBox.style.left = `${startX}px`;
@@ -158,19 +152,13 @@ export function showOverlay(options: OverlayOptions): void {
     dimensionBadge.style.display = "block";
   }
 
-  function handleMouseMove(e: MouseEvent): void {
+  function updateSelection(clientX: number, clientY: number): void {
     if (!isDragging) return;
 
-    e.preventDefault();
-    e.stopPropagation();
-
-    const currentX = e.clientX;
-    const currentY = e.clientY;
-
-    const left = Math.min(startX, currentX);
-    const top = Math.min(startY, currentY);
-    const width = Math.abs(currentX - startX);
-    const height = Math.abs(currentY - startY);
+    const left = Math.min(startX, clientX);
+    const top = Math.min(startY, clientY);
+    const width = Math.abs(clientX - startX);
+    const height = Math.abs(clientY - startY);
 
     selectionBox.style.left = `${left}px`;
     selectionBox.style.top = `${top}px`;
@@ -180,27 +168,21 @@ export function showOverlay(options: OverlayOptions): void {
     dimensionBadge.textContent = `${Math.round(width)} × ${Math.round(height)}`;
   }
 
-  function handleMouseUp(e: MouseEvent): void {
+  function endSelection(clientX: number, clientY: number): void {
     if (!isDragging) return;
-
-    e.preventDefault();
-    e.stopPropagation();
     isDragging = false;
 
-    const currentX = e.clientX;
-    const currentY = e.clientY;
+    const width = Math.abs(clientX - startX);
+    const height = Math.abs(clientY - startY);
 
-    const x = Math.min(startX, currentX);
-    const y = Math.min(startY, currentY);
-    const width = Math.abs(currentX - startX);
-    const height = Math.abs(currentY - startY);
-
-    // Minimum drag threshold to distinguish intentional drag from a simple click
     if (width < 5 || height < 5) {
       selectionBox.style.display = "none";
       dimensionBadge.style.display = "none";
       return;
     }
+
+    const x = Math.min(startX, clientX);
+    const y = Math.min(startY, clientY);
 
     cleanup();
 
@@ -213,15 +195,59 @@ export function showOverlay(options: OverlayOptions): void {
     });
   }
 
+  function handleMouseDown(e: MouseEvent): void {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    startSelection(e.clientX, e.clientY);
+  }
+
+  function handleMouseMove(e: MouseEvent): void {
+    if (!isDragging) return;
+    e.preventDefault();
+    e.stopPropagation();
+    updateSelection(e.clientX, e.clientY);
+  }
+
+  function handleMouseUp(e: MouseEvent): void {
+    if (!isDragging) return;
+    e.preventDefault();
+    e.stopPropagation();
+    endSelection(e.clientX, e.clientY);
+  }
+
+  function handleTouchStart(e: TouchEvent): void {
+    if (e.touches.length !== 1) return;
+    e.preventDefault();
+    e.stopPropagation();
+    startSelection(e.touches[0].clientX, e.touches[0].clientY);
+  }
+
+  function handleTouchMove(e: TouchEvent): void {
+    if (!isDragging || e.touches.length !== 1) return;
+    e.preventDefault();
+    e.stopPropagation();
+    updateSelection(e.touches[0].clientX, e.touches[0].clientY);
+  }
+
+  function handleTouchEnd(e: TouchEvent): void {
+    if (!isDragging) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const touch = e.changedTouches[0];
+    endSelection(touch ? touch.clientX : startX, touch ? touch.clientY : startY);
+  }
+
   window.addEventListener("keydown", handleKeyDown, true);
   window.addEventListener("mousedown", handleMouseDown, true);
   window.addEventListener("mousemove", handleMouseMove, true);
   window.addEventListener("mouseup", handleMouseUp, true);
+  window.addEventListener("touchstart", handleTouchStart, { capture: true, passive: false });
+  window.addEventListener("touchmove", handleTouchMove, { capture: true, passive: false });
+  window.addEventListener("touchend", handleTouchEnd, { capture: true, passive: false });
+  window.addEventListener("touchcancel", handleTouchEnd, { capture: true, passive: false });
 }
 
-/**
- * Checks if the capture overlay is currently open.
- */
 export function isOverlayActive(): boolean {
   return activeOverlay !== null;
 }
