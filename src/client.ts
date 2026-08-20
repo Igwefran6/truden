@@ -2,6 +2,7 @@ import { showOverlay, isOverlayActive } from "./overlay.js";
 import { captureRegion } from "./capture.js";
 import { attachShakeTrigger } from "./shake.js";
 import { attachShortcutTrigger } from "./shortcut.js";
+import { attachCustomEventTrigger } from "./event.js";
 import type { TrudenInitConfig, CaptureRegion } from "./types.js";
 
 let currentConfig: TrudenInitConfig = {};
@@ -25,6 +26,11 @@ export function init(config?: TrudenInitConfig): () => void {
     open();
   }, currentConfig.shortcut);
   cleanups.push(cleanupShortcut);
+
+  const cleanupCustomEvent = attachCustomEventTrigger(() => {
+    open();
+  }, currentConfig.customEvent);
+  cleanups.push(cleanupCustomEvent);
 
   const teardown = () => {
     cleanups.forEach((cleanup) => cleanup());
