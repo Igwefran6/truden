@@ -1,6 +1,40 @@
-node_modules
-dist
-.DS_Store
-*.log
+# Dependencies
+node_modules/
+.pnpm-store/
 
-dev_docs/**
+# Build Output
+dist/
+build/
+coverage/
+
+# Local Dev Docs & Scratch (Not to be committed)
+dev_docs/
+scratch/
+
+# Yalc local linking
+.yalc/
+yalc.lock
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Editor & IDEs
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
