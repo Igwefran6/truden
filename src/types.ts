@@ -29,7 +29,17 @@ export interface FloatingButtonConfig {
   className?: string;
 }
 
+export interface EndpointConfig {
+  url: string;
+  headers?: Record<string, string>;
+  prompt?: string;
+}
+
+export type TrudenEndpoint = string | EndpointConfig;
+
 export interface TrudenInitConfig {
+  /** Mode B: backend endpoint URL or configuration. If omitted, Mode A (frontend Blob) is used. */
+  endpoint?: TrudenEndpoint;
   shake?: boolean | ShakeConfig;
   shortcut?: boolean | string;
   customEvent?: boolean | string;
@@ -37,7 +47,7 @@ export interface TrudenInitConfig {
   touch?: boolean | TouchConfig;
   onOpen?: () => void;
   onCancel?: () => void;
-  onResult?: (result: Blob) => void;
+  onResult?: (result: any) => void;
   onError?: (error: unknown) => void;
   [key: string]: unknown;
 }

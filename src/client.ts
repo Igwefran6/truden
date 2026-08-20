@@ -10,6 +10,49 @@ import type { TrudenInitConfig, CaptureRegion } from "./types.js";
 let currentConfig: TrudenInitConfig = {};
 let activeTeardown: (() => void) | null = null;
 
+// Dispatches the captured Blob to Mode A (direct callback) or Mode B (backend POST)
+async function dispatchCaptureResult(blob: Blob, config: TrudenInitConfig): Promise<void> {
+  // Mode A: Frontend only (no endpoint configured)
+  if (!config.endpoint) {
+    config.onResult?.(blob);
+    return;
+  }
+
+  // Mode B: Backend endpoint configured
+  const endpointUrl =
+    typeof config.endpoint === "string" ? config.endpoint : config.endpoint.url;
+  const customHeaders =
+    typeof config.endpoint === "object" ? config.endpoint.headers : undefined;
+  const prompt =
+    typeof config.endpoint === "object" ? config.endpoint.prompt : undefined;
+
+  const formData = new FormData();
+  formData.append("image", blob, "screenshot.png");
+  if (prompt) {
+    formData.append("prompt", prompt);
+  }
+
+  try {
+    const res = await fetch(endpointUrl, {
+      method: "POST",
+      headers: customHeaders,
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const errorMsg = data?.error || `Server returned error status ${res.status}`;
+      config.onError?.(new Error(errorMsg));
+      return;
+    }
+
+    config.onResult?.(data.description !== undefined ? data.description : data);
+  } catch (err: unknown) {
+    config.onError?.(err);
+  }
+}
+
 export function init(config?: TrudenInitConfig): () => void {
   if (activeTeardown) {
     activeTeardown();
@@ -65,7 +108,7 @@ export function open(): void {
     onSelect: async (region: CaptureRegion) => {
       try {
         const blob = await captureRegion(region);
-        currentConfig.onResult?.(blob);
+        await dispatchCaptureResult(blob, currentConfig);
       } catch (error) {
         currentConfig.onError?.(error);
       }
