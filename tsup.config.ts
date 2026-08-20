@@ -7,5 +7,5 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   treeshake: true,
-  noExternal: ["html2canvas"],
+  noExternal: ["@zumer/snapdom"],
 });

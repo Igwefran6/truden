@@ -37,13 +37,13 @@
     "screen-capture",
     "ai-assistant",
     "copilot",
-    "vision-llm",
-    "html2canvas"
+    "snapdom",
+    "html-to-image"
   ],
   "author": "Francis Igwe",
   "license": "MIT",
   "dependencies": {
-    "html2canvas": "1.4.1"
+    "@zumer/snapdom": "^2.24.3"
   },
   "devDependencies": {
     "tsup": "^8.3.6",
