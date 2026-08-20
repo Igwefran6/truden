@@ -1,4 +1,5 @@
 import { showOverlay, isOverlayActive } from "./overlay.js";
+import { captureRegion } from "./capture.js";
 import type { TrudenInitConfig, CaptureRegion } from "./types.js";
 
 let currentConfig: TrudenInitConfig = {};
@@ -27,9 +28,13 @@ export function open(): void {
   currentConfig.onOpen?.();
 
   showOverlay({
-    onSelect: (region: CaptureRegion) => {
-      // Log region and invoke placeholder
-      console.log("[truden] Region selected:", region);
+    onSelect: async (region: CaptureRegion) => {
+      try {
+        const blob = await captureRegion(region);
+        currentConfig.onResult?.(blob);
+      } catch (error) {
+        currentConfig.onError?.(error);
+      }
     },
     onCancel: () => {
       currentConfig.onCancel?.();

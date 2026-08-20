@@ -9,7 +9,7 @@ export interface CaptureRegion {
 export interface TrudenInitConfig {
   onOpen?: () => void;
   onCancel?: () => void;
-  onResult?: (result: unknown) => void;
+  onResult?: (result: Blob) => void;
   onError?: (error: unknown) => void;
   [key: string]: unknown;
 }

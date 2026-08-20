@@ -28,7 +28,8 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "push": "tsup && yalc push"
   },
   "keywords": [
     "screenshot",
