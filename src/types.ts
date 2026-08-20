@@ -12,6 +12,11 @@ export interface ShakeConfig {
   minDistance?: number;
 }
 
+export interface TouchConfig {
+  duration?: number;
+  maxDistance?: number;
+}
+
 export type FloatingButtonPosition =
   | "bottom-right"
   | "bottom-left"
@@ -29,6 +34,7 @@ export interface TrudenInitConfig {
   shortcut?: boolean | string;
   customEvent?: boolean | string;
   floatingButton?: boolean | FloatingButtonConfig;
+  touch?: boolean | TouchConfig;
   onOpen?: () => void;
   onCancel?: () => void;
   onResult?: (result: Blob) => void;

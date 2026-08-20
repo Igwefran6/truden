@@ -4,6 +4,7 @@ import { attachShakeTrigger } from "./shake.js";
 import { attachShortcutTrigger } from "./shortcut.js";
 import { attachCustomEventTrigger } from "./event.js";
 import { attachFloatingButton } from "./button.js";
+import { attachTouchTrigger } from "./touch.js";
 import type { TrudenInitConfig, CaptureRegion } from "./types.js";
 
 let currentConfig: TrudenInitConfig = {};
@@ -37,6 +38,11 @@ export function init(config?: TrudenInitConfig): () => void {
     open();
   }, currentConfig.floatingButton);
   cleanups.push(cleanupFloatingButton);
+
+  const cleanupTouch = attachTouchTrigger(() => {
+    open();
+  }, currentConfig.touch);
+  cleanups.push(cleanupTouch);
 
   const teardown = () => {
     cleanups.forEach((cleanup) => cleanup());
