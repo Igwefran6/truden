@@ -10,6 +10,47 @@ import type { TrudenInitConfig, CaptureRegion } from "./types.js";
 let currentConfig: TrudenInitConfig = {};
 let activeTeardown: (() => void) | null = null;
 
+function notifyError(err: unknown, config: TrudenInitConfig): void {
+  if (config.onError) {
+    config.onError(err);
+  } else {
+    console.error("[truden] Error during capture:", err);
+  }
+}
+
+// Validates configuration options and emits warnings for invalid values without throwing
+function validateConfig(config: TrudenInitConfig): void {
+  if (config.endpoint !== undefined) {
+    if (typeof config.endpoint === "string" && config.endpoint.trim() === "") {
+      console.warn(
+        "[truden] `endpoint` is an empty string. Omit `endpoint` if you intend to use Mode A (frontend only)."
+      );
+    } else if (
+      typeof config.endpoint === "object" &&
+      (!config.endpoint.url || config.endpoint.url.trim() === "")
+    ) {
+      console.warn("[truden] `endpoint` configuration is missing a valid `url` property.");
+    }
+  }
+
+  if (typeof config.shake === "object" && config.shake !== null) {
+    if (config.shake.reversals !== undefined && config.shake.reversals < 1) {
+      console.warn("[truden] `shake.reversals` must be >= 1. Using default (4).");
+    }
+    if (config.shake.window !== undefined && config.shake.window <= 0) {
+      console.warn("[truden] `shake.window` must be > 0. Using default (800ms).");
+    }
+  }
+
+  if (typeof config.touch === "object" && config.touch !== null) {
+    if (config.touch.duration !== undefined && config.touch.duration < 100) {
+      console.warn(
+        "[truden] `touch.duration` is very short (<100ms), which may trigger accidentally during normal taps."
+      );
+    }
+  }
+}
+
 // Dispatches the captured Blob to Mode A (direct callback) or Mode B (backend POST)
 async function dispatchCaptureResult(blob: Blob, config: TrudenInitConfig): Promise<void> {
   // Mode A: Frontend only (no endpoint configured)
@@ -43,22 +84,24 @@ async function dispatchCaptureResult(blob: Blob, config: TrudenInitConfig): Prom
 
     if (!res.ok) {
       const errorMsg = data?.error || `Server returned error status ${res.status}`;
-      config.onError?.(new Error(errorMsg));
+      notifyError(new Error(errorMsg), config);
       return;
     }
 
     config.onResult?.(data.description !== undefined ? data.description : data);
   } catch (err: unknown) {
-    config.onError?.(err);
+    notifyError(err, config);
   }
 }
 
 export function init(config?: TrudenInitConfig): () => void {
+  // Guard against stacked duplicate listeners
   if (activeTeardown) {
     activeTeardown();
   }
 
   currentConfig = config || {};
+  validateConfig(currentConfig);
 
   const cleanups: Array<() => void> = [];
 
@@ -110,7 +153,7 @@ export function open(): void {
         const blob = await captureRegion(region);
         await dispatchCaptureResult(blob, currentConfig);
       } catch (error) {
-        currentConfig.onError?.(error);
+        notifyError(error, currentConfig);
       }
     },
     onCancel: () => {
