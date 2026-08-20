@@ -6,7 +6,14 @@ export interface CaptureRegion {
   isFullWindow: boolean;
 }
 
+export interface ShakeConfig {
+  reversals?: number;
+  window?: number;
+  minDistance?: number;
+}
+
 export interface TrudenInitConfig {
+  shake?: boolean | ShakeConfig;
   onOpen?: () => void;
   onCancel?: () => void;
   onResult?: (result: Blob) => void;

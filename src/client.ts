@@ -1,25 +1,36 @@
 import { showOverlay, isOverlayActive } from "./overlay.js";
 import { captureRegion } from "./capture.js";
+import { attachShakeTrigger } from "./shake.js";
 import type { TrudenInitConfig, CaptureRegion } from "./types.js";
 
 let currentConfig: TrudenInitConfig = {};
+let activeTeardown: (() => void) | null = null;
 
-/**
- * Initializes Truden with the given configuration.
- * Attaches listeners and returns a teardown function.
- */
 export function init(config?: TrudenInitConfig): () => void {
+  // Clean up any previous listeners if init was called before
+  if (activeTeardown) {
+    activeTeardown();
+  }
+
   currentConfig = config || {};
 
-  // Teardown function
-  return () => {
+  const cleanups: Array<() => void> = [];
+
+  const cleanupShake = attachShakeTrigger(() => {
+    open();
+  }, currentConfig.shake);
+  cleanups.push(cleanupShake);
+
+  const teardown = () => {
+    cleanups.forEach((cleanup) => cleanup());
     currentConfig = {};
+    activeTeardown = null;
   };
+
+  activeTeardown = teardown;
+  return teardown;
 }
 
-/**
- * Directly triggers the capture overlay.
- */
 export function open(): void {
   if (isOverlayActive()) {
     return;
