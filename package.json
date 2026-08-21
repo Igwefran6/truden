@@ -1,6 +1,14 @@
 {
   "name": "truden",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Igwefran6/truden.git"
+  },
+  "homepage": "https://github.com/Igwefran6/truden#readme",
+  "bugs": {
+    "url": "https://github.com/Igwefran6/truden/issues"
+  },
   "description": "Hold Alt and shake the mouse anywhere in your web app to capture and snip UI for AI assistants.",
   "type": "module",
   "main": "./dist/index.js",
@@ -30,7 +38,8 @@
     "build": "tsup",
     "typecheck": "tsc --noEmit",
     "dev": "tsup --watch",
-    "push": "tsup && yalc push"
+    "push": "tsup && yalc push",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "screenshot",

@@ -128,18 +128,19 @@ export default function App() {
 
 ## Documentation
 
-Comprehensive guides and API reference are available in the [`/documentation`](./documentation) directory:
+Comprehensive guides and API reference are available in the [`/documentation`](https://github.com/Igwefran6/truden/tree/master/documentation) directory:
 
-- 📖 [Getting Started](./documentation/getting-started.md)
-- 🚀 [Framework & Platform Guides (React, Next.js, Svelte, Vue, Angular, TanStack Start, Solid, Vanilla)](./documentation/frameworks.md)
-- 🎯 [Trigger Configurations](./documentation/triggers.md)
-- 🖼️ [Mode A: Frontend AI Assistants](./documentation/mode-a.md)
-- 🤖 [Mode B: Vision LLM Adapters](./documentation/mode-b.md)
-- 📚 [Complete API Reference](./documentation/api-reference.md)
-- ⚠️ [Known Limitations &amp; Security](./documentation/limitations.md)
+- 📖 [Getting Started](https://github.com/Igwefran6/truden/blob/master/documentation/getting-started.md)
+- 🚀 [Framework & Platform Guides (React, Next.js, Svelte, Vue, Angular, TanStack Start, Solid, Vanilla)](https://github.com/Igwefran6/truden/blob/master/documentation/frameworks.md)
+- 🎯 [Trigger Configurations](https://github.com/Igwefran6/truden/blob/master/documentation/triggers.md)
+- 🖼️ [Mode A: Frontend AI Assistants](https://github.com/Igwefran6/truden/blob/master/documentation/mode-a.md)
+- 🤖 [Mode B: Vision LLM Adapters](https://github.com/Igwefran6/truden/blob/master/documentation/mode-b.md)
+- 📚 [Complete API Reference](https://github.com/Igwefran6/truden/blob/master/documentation/api-reference.md)
+- ⚠️ [Known Limitations & Security](https://github.com/Igwefran6/truden/blob/master/documentation/limitations.md)
 
 ---
 
 ## License
 
-[MIT](./LICENSE) © [Francis Igwe](https://github.com/Igwefran6)
+[MIT](https://github.com/Igwefran6/truden/blob/master/LICENSE) © [Francis Igwe](https://github.com/Igwefran6)
+
