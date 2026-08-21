@@ -10,8 +10,6 @@ Truden gives your web application an instant screen-snipping overlay. Users sele
 1. **Mode A (Frontend Only):** Handed directly to your in-app multimodal AI chat assistant as an image `Blob` with zero backend setup.
 2. **Mode B (Vision LLM Backend):** POSTed to a backend route handler where your preferred AI SDK analyzes the image and returns a text description.
 
----
-
 ## Installation
 
 ```bash
@@ -21,8 +19,6 @@ pnpm add truden
 # or
 yarn add truden
 ```
-
----
 
 ## 2-Minute Quickstart
 
@@ -60,8 +56,6 @@ export default function App() {
   );
 }
 ```
-
----
 
 ### Mode B: Vision LLM Analysis (Server Adapter)
 
@@ -111,8 +105,6 @@ export default function App() {
 }
 ```
 
----
-
 ## Triggers
 
 | Trigger | Default | How to Activate |
@@ -123,8 +115,6 @@ export default function App() {
 | **Custom Event** | `truden:open` | `window.dispatchEvent(new CustomEvent('truden:open'))` |
 | **Touch Long-Press** | Enabled (600ms) | Press and hold on touchscreen |
 | **Programmatic** | Always available | Call`truden.open()` from any button or hook |
-
----
 
 ## Documentation
 
@@ -143,4 +133,3 @@ Comprehensive guides and API reference are available in the [`/documentation`](h
 ## License
 
 [MIT](https://github.com/Igwefran6/truden/blob/master/LICENSE) © [Francis Igwe](https://github.com/Igwefran6)
-
